@@ -1,0 +1,64 @@
+[buildout]
+parts =
+# monitor-base
+  publish-connection-parameter
+  mynij-proxy-promise
+
+# Define egg directories to be the one from Software Release
+# (/opt/slapgrid/...)
+# Always the same.
+eggs-directory = {{ buildout['eggs-directory'] }}
+develop-eggs-directory = {{ buildout['develop-eggs-directory'] }}
+offline = true
+
+extends = {{ template_monitor }}
+
+
+[slap-configuration]
+recipe = slapos.cookbook:slapconfiguration
+computer = ${slap-connection:computer-id}
+partition = ${slap-connection:partition-id}
+url = ${slap-connection:server-url}
+key = ${slap-connection:key-file}
+cert = ${slap-connection:cert-file}
+
+# Create all needed directories, depending on your needs
+[directory]
+recipe = slapos.cookbook:mkdirectory
+home = ${buildout:directory}
+etc = ${:home}/etc
+var = ${:home}/var
+# Executables put here will be started but not monitored (for startup scripts)
+script = ${:etc}/run/
+# Executables put here will be started and monitored (for daemons)
+service = ${:etc}/service
+# Path of the log directory used by our service (see [helloweb])
+log = ${:var}/log
+plugins = ${:etc}/plugins
+
+[mynij-proxy-service]
+# Actual script that starts the service:
+# This recipe will try to "exec" the command-line after separating parameters.
+recipe = slapos.cookbook:wrapper
+command-line =
+    {{ gunicorn_bin }} --bind [${:host}]:${:port} app:app
+host = ${slap-configuration:ipv6-random}
+port = 3001
+
+wrapper-path = ${directory:service}/mynij-proxy
+
+[mynij-proxy-promise]
+<= monitor-promise-base
+module = check_port_listening
+name = mynij-proxy-port-listening.py
+config-hostname= ${mynij-proxy-service:host}
+config-port    = ${mynij-proxy-service:port}
+
+
+# Publish all the parameters needed for the user to connect to the instance.
+# It can be anything: URL(s), password(s), or arbitrary parameters.
+# Here we'll just echo back the entered name as instance parameter
+[publish-connection-parameter]
+recipe = slapos.cookbook:publish
+<= monitor-publish
+url = http://[${mynij-proxy-service:host}]:${mynij-proxy-service:port}
