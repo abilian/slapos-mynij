@@ -1,6 +1,8 @@
 [buildout]
 parts =
+# monitor-base
   publish-connection-parameter
+  proxy-promise
 
 # Define egg directories to be the one from Software Release
 # (/opt/slapgrid/...)
@@ -8,6 +10,8 @@ parts =
 eggs-directory = {{ buildout['eggs-directory'] }}
 develop-eggs-directory = {{ buildout['develop-eggs-directory'] }}
 offline = true
+
+extends = {{ template_monitor }}
 
 
 [slap-configuration]
@@ -43,10 +47,18 @@ port = 3001
 
 wrapper-path = ${directory:service}/mynij-proxy
 
+[proxy-promise]
+<= monitor-promise-base
+module = check_port_listening
+name = proxy-port-listening.py
+config-hostname= ${proxy-service:host}
+config-port    = ${proxy-service:port}
+
 
 # Publish all the parameters needed for the user to connect to the instance.
 # It can be anything: URL(s), password(s), or arbitrary parameters.
 # Here we'll just echo back the entered name as instance parameter
 [publish-connection-parameter]
 recipe = slapos.cookbook:publish
+<= monitor-publish
 url = http://[${proxy-service:host}]:${proxy-service:port}
