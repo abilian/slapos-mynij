@@ -2,7 +2,7 @@
 parts =
 # monitor-base
   publish-connection-parameter
-  proxy-promise
+  flask-demo-promise
 
 # Define egg directories to be the one from Software Release
 # (/opt/slapgrid/...)
@@ -36,7 +36,7 @@ service = ${:etc}/service
 log = ${:var}/log
 plugins = ${:etc}/plugins
 
-[proxy-service]
+[flask-demo-service]
 # Actual script that starts the service:
 # This recipe will try to "exec" the command-line after separating parameters.
 recipe = slapos.cookbook:wrapper
@@ -45,14 +45,14 @@ command-line =
 host = ${slap-configuration:ipv6-random}
 port = 3001
 
-wrapper-path = ${directory:service}/mynij-proxy
+wrapper-path = ${directory:service}/flask-demo
 
-[proxy-promise]
+[flask-demo-promise]
 <= monitor-promise-base
 module = check_port_listening
-name = proxy-port-listening.py
-config-hostname= ${proxy-service:host}
-config-port    = ${proxy-service:port}
+name = flask-demo-port-listening.py
+config-hostname= ${flask-demo-service:host}
+config-port    = ${flask-demo-service:port}
 
 
 # Publish all the parameters needed for the user to connect to the instance.
@@ -61,4 +61,4 @@ config-port    = ${proxy-service:port}
 [publish-connection-parameter]
 recipe = slapos.cookbook:publish
 <= monitor-publish
-url = http://[${proxy-service:host}]:${proxy-service:port}
+url = http://[${flask-demo-service:host}]:${flask-demo-service:port}
