@@ -1,6 +1,6 @@
 [buildout]
 parts =
-# monitor-base
+  # monitor-base
   publish-connection-parameter
   mynij-proxy-promise
 
@@ -22,6 +22,7 @@ url = ${slap-connection:server-url}
 key = ${slap-connection:key-file}
 cert = ${slap-connection:cert-file}
 
+
 # Create all needed directories, depending on your needs
 [directory]
 recipe = slapos.cookbook:mkdirectory
@@ -36,6 +37,7 @@ service = ${:etc}/service
 log = ${:var}/log
 plugins = ${:etc}/plugins
 
+
 [mynij-proxy-service]
 # Actual script that starts the service:
 # This recipe will try to "exec" the command-line after separating parameters.
@@ -46,6 +48,7 @@ host = ${slap-configuration:ipv6-random}
 port = 3001
 
 wrapper-path = ${directory:service}/mynij-proxy
+
 
 [mynij-proxy-promise]
 <= monitor-promise-base
