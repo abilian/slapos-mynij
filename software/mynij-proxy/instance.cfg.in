@@ -45,9 +45,7 @@ plugins = ${:etc}/plugins
 recipe = slapos.cookbook:wrapper
 host = ${slap-configuration:ipv6-random}
 port = ${slap-configuration:configuration.port}
-command-line = {{ gunicorn_bin }} --bind [${:host}]:${:port} \
-    --pid server.pid -k uvicorn.workers.UvicornWorker -w 4 \
-    mynij_proxy:app
+command-line = {{ gunicorn_bin }} --bind [${:host}]:${:port} --pid server.pid -k uvicorn.workers.UvicornWorker -w 4 mynij_proxy:app
 
 wrapper-path = ${directory:service}/mynij-proxy
 
