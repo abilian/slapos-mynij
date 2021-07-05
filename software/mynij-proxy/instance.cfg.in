@@ -21,6 +21,7 @@ partition = ${slap-connection:partition-id}
 url = ${slap-connection:server-url}
 key = ${slap-connection:key-file}
 cert = ${slap-connection:cert-file}
+configuration.port = 3001
 
 
 # Create all needed directories, depending on your needs
@@ -42,10 +43,9 @@ plugins = ${:etc}/plugins
 # Actual script that starts the service:
 # This recipe will try to "exec" the command-line after separating parameters.
 recipe = slapos.cookbook:wrapper
-command-line =
-    {{ gunicorn_bin }} --bind [${:host}]:${:port} app:app
 host = ${slap-configuration:ipv6-random}
-port = 3001
+port = ${slap-configuration:configuration.port}
+command-line = {{ gunicorn_bin }} --bind [${:host}]:${:port} app:app
 
 wrapper-path = ${directory:service}/mynij-proxy
 
