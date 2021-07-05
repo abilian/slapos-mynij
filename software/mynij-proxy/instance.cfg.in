@@ -1,8 +1,8 @@
 [buildout]
 parts =
-  # monitor-base
   publish-connection-parameter
   mynij-proxy-promise
+#+ monitor-base
 
 # Define egg directories to be the one from Software Release
 # (/opt/slapgrid/...)
