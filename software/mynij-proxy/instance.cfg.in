@@ -2,7 +2,7 @@
 parts =
   publish-connection-parameter
   mynij-proxy-promise
-#+ monitor-base
+  mynij-http-promise
 
 # Define egg directories to be the one from Software Release
 # (/opt/slapgrid/...)
@@ -57,6 +57,15 @@ module = check_port_listening
 name = mynij-proxy-port-listening.py
 config-hostname= ${mynij-proxy-service:host}
 config-port    = ${mynij-proxy-service:port}
+
+
+[mynij-http-promise]
+<= monitor-promise-base
+module = check_url_available
+name = mynij-http-working.py
+url = ${publish-connection-parameter:url}
+config-url = ${:url}
+config-check-secure = 1
 
 
 # Publish all the parameters needed for the user to connect to the instance.
