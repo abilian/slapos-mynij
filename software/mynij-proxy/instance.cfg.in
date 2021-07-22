@@ -46,10 +46,7 @@ ssl = ${:etc}/ssl
 recipe = slapos.cookbook:wrapper
 host = ${slap-configuration:ipv6-random}
 port = ${slap-configuration:configuration.port}
-command-line = {{ gunicorn_bin }} --bind [${:host}]:${:port} \
-    --pid server.pid -k uvicorn.workers.UvicornWorker -w 4 \
-    --keyfile "${certificates:ssl_key}" --certfile "${certificates:ssl_crt}" \
-    mynij_proxy:app
+command-line = {{ gunicorn_bin }} --bind [${:host}]:${:port} --pid server.pid -k uvicorn.workers.UvicornWorker -w 4 --keyfile "${certificates:ssl_key}" --certfile "${certificates:ssl_crt}" mynij_proxy:app
 
 wrapper-path = ${directory:service}/mynij-proxy
 
