@@ -59,7 +59,8 @@ name = Mynij Proxy Frontend
 # XXX We have hardcoded SR URL here.
 software-url = http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg
 slave = true
-config-url = https://[${mynij-proxy-service:host}]:${mynij-proxy-servicer:port}
+backend-url = https://[${mynij-proxy-service:host}]:${mynij-proxy-servicer:port}
+config-url = ${:backend-url}
 return = secure_access domain
 
 
@@ -78,10 +79,10 @@ recipe = slapos.cookbook:publish
 # By extending monitor publish, all the section deploying monitoring will
 # be deployed. The parameters needed for accessing monitoring will be published
 <= monitor-publish
-server_url = ${html5as:access_url}
+backend-url = ${request-mynij-proxy-frontend:backend-url}
 # Add dependency to the promise so that frontend sections are processed
 # and there is no need to declare the new part in buildout:parts
-server-cdn-url = ${mynij-proxy-frontend-promise:url}
+url = ${mynij-proxy-frontend-promise:url}
 
 
 [mynij-proxy-promise]
