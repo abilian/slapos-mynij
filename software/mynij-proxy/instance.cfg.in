@@ -37,7 +37,7 @@ service = ${:etc}/service
 # Path of the log directory used by our service (see [helloweb])
 log = ${:var}/log
 plugins = ${:etc}/plugins
-
+ssl = ${:etc}/ssl
 
 [mynij-proxy-service]
 # Actual script that starts the service:
@@ -45,7 +45,10 @@ plugins = ${:etc}/plugins
 recipe = slapos.cookbook:wrapper
 host = ${slap-configuration:ipv6-random}
 port = ${slap-configuration:configuration.port}
-command-line = {{ gunicorn_bin }} --bind [${:host}]:${:port} --pid server.pid -k uvicorn.workers.UvicornWorker -w 4 mynij_proxy:app
+command-line = {{ gunicorn_bin }} --bind [${:host}]:${:port} \
+    --pid server.pid -k uvicorn.workers.UvicornWorker -w 4 \
+    --keyfile "${certificates:ssl_key}" --certfile "${certificates:ssl_crt}" \
+    mynij_proxy:app
 
 wrapper-path = ${directory:service}/mynij-proxy
 
@@ -65,3 +68,11 @@ config-port    = ${mynij-proxy-service:port}
 recipe = slapos.cookbook:publish
 <= monitor-publish
 url = http://[${mynij-proxy-service:host}]:${mynij-proxy-service:port}
+
+
+[certificates]
+recipe = plone.recipe.command
+command = "{{ parameter_dict['openssl'] }}" req -newkey rsa -batch -new -x509 -days 3650 -nodes -keyout "${:ssl_key}" -out "${:ssl_crt}"
+stop-on-error = true
+ssl_crt = ${directory:ssl}/httpd.crt
+ssl_key = ${directory:ssl}/httpd.key
