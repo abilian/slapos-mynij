@@ -2,7 +2,8 @@
 parts =
   publish-connection-parameter
   mynij-proxy-promise
-  mynij-http-promise
+  mynij-proxy-http-promise
+  mynij-proxy-frontend-promise
 
 # Define egg directories to be the one from Software Release
 # (/opt/slapgrid/...)
@@ -51,6 +52,38 @@ command-line = {{ gunicorn_bin }} --bind [${:host}]:${:port} --pid server.pid -k
 wrapper-path = ${directory:service}/mynij-proxy
 
 
+[request-mynij-proxy-frontend]
+<= slap-connection
+recipe = slapos.cookbook:requestoptional
+name = Mynij Proxy Frontend
+# XXX We have hardcoded SR URL here.
+software-url = http://git.erp5.org/gitweb/slapos.git/blob_plain/HEAD:/software/apache-frontend/software.cfg
+slave = true
+config-url = https://[${mynij-proxy-service:host}]:${mynij-proxy-servicer:port}
+return = secure_access domain
+
+
+# Add a promise to make sure the cdn is properly configured
+[mynij-proxy-frontend-promise]
+<= monitor-promise-base
+module = check_url_available
+name = mynij-proxy-http-frontend.py
+url = ${request-mynij-proxy-frontend:connection-secure_access}
+config-url = ${:url}
+config-check-secure = 1
+
+
+[publish-connection-information]
+recipe = slapos.cookbook:publish
+# By extending monitor publish, all the section deploying monitoring will
+# be deployed. The parameters needed for accessing monitoring will be published
+<= monitor-publish
+server_url = ${html5as:access_url}
+# Add dependency to the promise so that frontend sections are processed
+# and there is no need to declare the new part in buildout:parts
+server-cdn-url = ${mynij-proxy-frontend-promise:url}
+
+
 [mynij-proxy-promise]
 <= monitor-promise-base
 module = check_port_listening
@@ -59,7 +92,7 @@ config-hostname= ${mynij-proxy-service:host}
 config-port    = ${mynij-proxy-service:port}
 
 
-[mynij-http-promise]
+[mynij-proxy-http-promise]
 <= monitor-promise-base
 module = check_url_available
 name = mynij-http-working.py
