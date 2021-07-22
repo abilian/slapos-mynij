@@ -67,7 +67,7 @@ config-port    = ${mynij-proxy-service:port}
 [publish-connection-parameter]
 recipe = slapos.cookbook:publish
 <= monitor-publish
-url = http://[${mynij-proxy-service:host}]:${mynij-proxy-service:port}
+url = https://[${mynij-proxy-service:host}]:${mynij-proxy-service:port}
 
 
 [certificates]
